@@ -1,0 +1,6 @@
+{
+    "base_url": "https://www.glassdoor.co.uk/Job/{country}-{search_term}-jobs-SRCH_IL.0,{country_code},{str_length}.htm",
+    "target_num": 90,
+    "search_terms" : ["data-scientist","software-engineer","data-analyst", "research-scientist", "business-analyst","data-engineer","machine-learning-engineer"],
+    "locations" : {"all":"SRCH_KO0","remote":"6_IS11048_KO7","singapore":"9_IC3235921_KO10","colombia":"8_IN54_KO9", "switzerland":"11_IN226_KO12","us":"2_IN1_KO3","canada":"6_IN3_KO7","germany":"7_IN96_KO8","uk":"2_IN2_KO3","norway":"6_IN180_KO7"}
+}
