@@ -19,42 +19,44 @@ def extract_listingBanner(listing_soup):
         listing_bannerGroup_valid = True
     except:
         print("[ERROR] Error occurred in function extract_listingBanner")
-        companyName = "NaN"
-        company_starRating = "NaN"
-        company_offeredRole = "NaN"
-        company_roleLocation = "NaN"
+        companyName = None
+        company_starRating = None
+        company_offeredRole = None
+        company_roleLocation = None
 
     if listing_bannerGroup_valid:
         try:
             company_starRating = listing_bannerGroup.find("span", class_="css-1pmc6te e11nt52q4").getText()
+            if company_starRating is not None:
+                company_starRating =float(company_starRating)
         except:
-            company_starRating = "NaN"
-        if company_starRating != "NaN":
+            company_starRating = None
+        if company_starRating is not None:
             try:
                 companyName = listing_bannerGroup.find("div", class_="css-16nw49e e11nt52q1").getText().replace(company_starRating,'')
             except:
-                companyName = "NaN"
+                companyName = None
             # company_starRating.replace("★", "")
             company_starRating = company_starRating[:-1]
         else:
             try:
                 companyName = listing_bannerGroup.find("div", class_="css-16nw49e e11nt52q1").getText()
             except:
-                companyName = "NaN"
+                companyName = None
 
         try:
             company_offeredRole = listing_bannerGroup.find("div", class_="css-17x2pwl e11nt52q6").getText()
         except:
-            company_offeredRole = "NaN"
+            company_offeredRole = None
 
         try:
             company_roleLocation = listing_bannerGroup.find("div", class_="css-1v5elnn e11nt52q2").getText()
         except:
-            company_roleLocation = "NaN"
+            company_roleLocation = None
         try:
             company_salary_estimate = listing_bannerGroup.find("div", class_="css-ur1szg e11nt52q0").getText()
         except:
-            company_salary_estimate = "NaN"
+            company_salary_estimate = None
     return companyName, company_starRating, company_offeredRole, company_roleLocation
 
 
@@ -69,11 +71,11 @@ def extract_listingDesc(listing_soup):
             JobDescriptionContainer_found = True
         else:
             JobDescriptionContainer_found = False
-            listing_jobDesc = "NaN"
+            listing_jobDesc = None
     except Exception as e:
         print("[ERROR] {} in extract_listingDesc".format(e))
         JobDescriptionContainer_found = False
-        listing_jobDesc = "NaN"
+        listing_jobDesc = None
 
     if JobDescriptionContainer_found:
         jobDesc_items = listing_jobDesc_raw.findAll('li')
@@ -96,7 +98,7 @@ def extract_parent_sibling_attr(search_group,attribute):
     if not finded_attr:
         raise Exception('attribute {} not found'.format(attribute))
     if (object.parent.next_sibling.text=="N/A"):
-        return "NaN"
+        return None
     return object.parent.next_sibling.text
 #extracts the value for a matching attribute of the list
 def extract_sibling_attr(search_group,attribute):
@@ -108,7 +110,7 @@ def extract_sibling_attr(search_group,attribute):
     if not finded_attr:
         raise Exception('attribute {} not found'.format(attribute))
     if (object.next_sibling.text=="N/A"):
-        return "NaN"
+        return None
     elif(object.next_sibling.text==""):
         object=object.next_sibling
     return object.next_sibling.text
@@ -120,57 +122,65 @@ def extract_listing_highlights(listing_soup):
         listing_highlightsGroup_valid = True
     except:
         print("[ERROR] Error occurred in function extract_listing_highlights")
-        compensation_and_benefits = "NaN"
-        culture_and_values = "NaN"
-        career_opportunities = "NaN"
-        work_life_balance = "NaN"
-        job_type = "NaN"
-        industry = "NaN"
-        job_function= "NaN"
-        company_size="NaN"
+        compensation_and_benefits = None
+        culture_and_values = None
+        career_opportunities = None
+        work_life_balance = None
+        job_type = None
+        industry = None
+        job_function= None
+        company_size=None
     if listing_highlightsGroup_valid :
         list_of_highlights=listing_soup.find_all("span", class_="css-1vg6q84 e18tf5om6")
         try:
-            compensation_and_benefits =extract_parent_sibling_attr(list_of_highlights,"Compensation & Benefits")
+            compensation_and_benefits = extract_parent_sibling_attr(list_of_highlights,"Compensation & Benefits")
+            if compensation_and_benefits is not None:
+                compensation_and_benefits =float(compensation_and_benefits)
         except Exception as e:
-            compensation_and_benefits = "NaN"
+            compensation_and_benefits = None
             print("[ERROR] {} in extract_listing_highlights".format(e))
         try:
             culture_and_values =extract_parent_sibling_attr(list_of_highlights,"Culture & Values")
+            if culture_and_values is not None:
+                culture_and_values =float(culture_and_values)
         except Exception as e:
-            culture_and_values = "NaN"
+            culture_and_values = None
             print("[ERROR] {} in extract_listing_highlights".format(e))
         try:
             career_opportunities =extract_parent_sibling_attr(list_of_highlights,"Career Opportunities")
+            if career_opportunities is not None:
+                career_opportunities =float(career_opportunities)
         except Exception as e:
-            career_opportunities = "NaN"
+            career_opportunities = None
             print("[ERROR] {} in extract_listing_highlights".format(e))
         try:
             work_life_balance =extract_parent_sibling_attr(list_of_highlights,"Work/Life Balance")
+            if work_life_balance is not None:
+                work_life_balance =float(work_life_balance)
         except Exception as e:
-            work_life_balance = "NaN"
+            work_life_balance = None
             print("[ERROR] {} in extract_listing_highlights".format(e))
         try:
             job_type = extract_sibling_attr(list_of_highlights,"Job Type")
         except Exception as e:
-            job_type = "NaN"
+            job_type = None
             print("[ERROR] {} in extract_listing_highlights".format(e))
         try:
             industry = extract_sibling_attr(list_of_highlights,"Industry")
         except Exception as e:
-            industry = "NaN"
+            industry = None
             print("[ERROR] {} in extract_listing_highlights".format(e))
         try:
             job_function= extract_sibling_attr(list_of_highlights,"Job Function")
         except Exception as e:
-            job_function= "NaN"
+            job_function= None
             print("[ERROR] {} in extract_listing_highlights".format(e))
         try:
             company_size = extract_sibling_attr(list_of_highlights,"Size")
             if(company_size == "Unknown" or company_size == "unknown"):
-                company_size = "NaN"
+                company_size = None
         except Exception as e:
-            company_size = "NaN"
+            company_size = None
             print("[ERROR] {} in extract_listing_highlights".format(e))
     return compensation_and_benefits,culture_and_values,career_opportunities,work_life_balance,\
             job_type,industry,job_function,company_size
@@ -183,7 +193,7 @@ def extract_listing(url):
         request_success = True
     except Exception as e:
         print("[ERROR] Error occurred in extract_listing, requested url: {} is unavailable.".format(url))
-        return ("NaN", "NaN", "NaN", "NaN", "NaN", "NaN","NaN", "NaN", "NaN", "NaN","NaN", "NaN", "NaN", "NaN")
+        return (None, None, None, None, None, None,None, None, None, None,None, None, None, None)
 
     if request_success:
         companyName, company_starRating, company_offeredRole, company_roleLocation = extract_listingBanner(listing_soup)

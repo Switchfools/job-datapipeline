@@ -7,11 +7,11 @@ from time import time
 from time import sleep
 import csv
 import shutil
+from io import BytesIO
 # 3rd-party libraries
 import enlighten
 import boto3
-from pyspark.sql.types import StructType,StructField, StringType, DoubleType
-from pyspark.sql import SparkSession
+import pandas as pd
 # custom functions
 from packages.common import requestAndParse
 from packages.page import extract_maximums, extract_listings
@@ -28,6 +28,7 @@ def load_configs(path):
     search_terms=configurations["search_terms"]
     locations=configurations["locations"]
     base_urls=[]
+    search_terms_dict={}
     #to modify the url we include
     for search_term in search_terms:
         for location in locations.keys():
@@ -36,14 +37,15 @@ def load_configs(path):
                                         country_code=locations[location],
                                         str_length=len(location)+len(search_term)+1)
             base_urls.append(base_url)
-    return base_urls, target_num
+            search_terms_dict[base_url]="{}-{}".format(search_term,location)
+    return base_urls, target_num,search_terms_dict
 
 
 # appends list of tuples in specified output csv file
 # a tuple is written as a single row in csv file
-def dataframe_writer(listOfTuples, schema, jobs_data):
-    newRow = spark.createDataFrame(listOfTuples, schema)
-    return jobs_data.union(newRow)
+def dataframe_writer(list_of_tuples, schema, jobs_data):
+    new_rows = pd.DataFrame(data=list_of_tuples, columns=schema)
+    return pd.concat([jobs_data,new_rows])
 
 # updates url according to the page_index desired
 def update_url(prev_url, page_index):
@@ -57,12 +59,12 @@ def update_url(prev_url, page_index):
     new_url = prev_url.replace(prev_substring, new_substring)
     return new_url
 
-def connect_to_aws(credentials_path,spark):
+def connect_to_aws(credentials_path):
     counter = 1
     while True:
         try:
             credentials = json.load(open(credentials_path))
-            s3 = boto3.client('s3',
+            s3 = boto3.resource('s3',
                     aws_access_key_id= credentials["AWSAccessKeyId"],
                     aws_secret_access_key=credentials["AWSSecretKey"])
             print("[INFO] Succesfully mounted S3 bucket ")
@@ -78,70 +80,42 @@ def connect_to_aws(credentials_path,spark):
                 sleep(5)
                 counter += 1
 
-def save_file(file, filename):
+def save_file_to_aws(file, client, bucket_filename, bucket):
     #then we write
     try:
-        file.write.mode('append').parquet(filename)
+        parquet_buffer = BytesIO()
+        file.to_parquet(parquet_buffer, engine= 'pyarrow')
+        client.Object(bucket, bucket_filename+".parquet").put(Body=parquet_buffer.getvalue())
+        print("[INFO] succesfully uploaded file to aws ")
     except Exception as e:
         print("[ERROR] {} unable to write file ".format(e))
-def save_file_to_aws(client, filename, bucket_filename, bucket):
-    #then we write
-    try:
-        filenames = next(os.walk(filename), (None, None, []))[2]
-        for file in filenames:
-            client.upload_file(filename+"/"+file, bucket, bucket_filename+"/"+file)
-    except Exception as e:
-        print("[ERROR] {} unable to upload file to aws ".format(e))
-
 
 def create_dataframe(schema,data=[]):
-    df2 = spark.createDataFrame(data, schema)
+    df2 = pd.DataFrame(data=data, columns=schema)
     print("[INFO] Dataframe succesfully created")
     #df2.printSchema()
     return df2
-def delete_file(output_file_name):
-    try:
-        shutil.rmtree(output_file_name)
-        print("[INFO] Local copy succesfully removed")
-    except Exception as e:
-        print("[ERROR] {} Unable to erase local copy".format(e))
 if __name__ == "__main__":
-    base_urls, target_num = load_configs(path="./data/config.json")
+    base_urls, target_num,search_terms_dict = load_configs(path="./data/config.json")
 
     # initialises output directory and file
     if not os.path.exists('output'):
         os.makedirs('output')
     now = datetime.now() # current date and time
-    #create the spark session
-    spark = SparkSession \
-        .builder \
-        .master("local[*]")\
-        .appName("jobScrapper") \
-        .getOrCreate()
-    output_file_name = "./output/" + now.strftime("%d-%m-%Y") + ".parquet"
+    output_file_name = "./output/" + now.strftime("%d-%m-%Y")+"-"
     bucket="job-search-bucket"
-    bucket_file_name="glassdoor-job-scrapping"+now.strftime("%d-%m-%Y") + ".parquet"
-    s3_client=connect_to_aws("../../../credentials.json",spark)
-    schema = StructType([StructField("company_name", StringType(), True),
-                        StructField("company_rating", DoubleType(), True),
-                        StructField("company_offered_role", StringType(), True),
-                        StructField("company_role_location", StringType(), True),
-                        StructField("job_description", StringType(), True),
-                        StructField("requested_url", StringType(), True),
-                        StructField("compensation_and_benefits", DoubleType(), True),
-                        StructField("culture_and_values", DoubleType(), True),
-                        StructField("career_opportunities", DoubleType(), True),
-                        StructField("work_life_balance", DoubleType(), True),
-                        StructField("job_type", StringType(), True),
-                        StructField("industry", StringType(), True),
-                        StructField("job_function", StringType(), True),
-                        StructField("company_size", StringType(), True),
-                        StructField("estimated_salary", StringType(), True)])
+    bucket_file_name="glassdoor-job-scrapping"+now.strftime("%d-%m-%Y")+"-"
+    s3_client=connect_to_aws("../../../credentials.json")
     # initialises enlighten_manager
+    schema = ["company_name", "company_rating", "company_offered_role", "company_role_location",\
+             "job_description", "requested_url", "compensation_and_benefits", "culture_and_values",\
+             "career_opportunities", "work_life_balance", "job_type", "industry", "job_function", \
+             "company_size", "estimated_salary"]
     enlighten_manager = enlighten.get_manager()
     progress_total=enlighten_manager.counter(total=len(base_urls), desc="Total progress", unit="url scrapped", color="green", leave=False)
     urls_scrapped=0
     for base_url in base_urls:
+        jobs_data=create_dataframe(schema)
         maxJobs, maxPages = extract_maximums(base_url)
         # print("[INFO] Maximum number of jobs in range: {}, number of pages in range: {}".format(maxJobs, maxPages))
         target_num_temp=target_num
@@ -157,10 +131,10 @@ if __name__ == "__main__":
 
         # initialises prev_url as base_url
         prev_url = base_url
-
+        start_time = time()
         while total_listingCount < target_num_temp:
             # clean up buffer
-            list_returnedTuple = []
+            list_returned_tuple = []
 
             new_url = update_url(prev_url, page_index)
             page_soup,_ = requestAndParse(new_url)
@@ -178,13 +152,13 @@ if __name__ == "__main__":
                     append_tuple=returned_tuple+(listings_dict[listing_url],)
                 else:
                     append_tuple=returned_tuple+(None,)
-                list_returnedTuple.append(append_tuple)
+                list_returned_tuple.append(append_tuple)
                 # print(returned_tuple)
                 progress_inner.update()
 
             progress_inner.close()
             #we create the dataframe that stores the info after scrapping the page
-            jobs_data = create_dataframe(schema, list_returnedTuple)
+            jobs_data = dataframe_writer(list_returned_tuple,schema,jobs_data)
             # done with page, moving onto next page
             total_listingCount = total_listingCount + jobCount
             print("[INFO] Finished processing page index {}; Total number of jobs processed: {}".format(page_index, total_listingCount))
@@ -193,9 +167,9 @@ if __name__ == "__main__":
             progress_outer.update(jobCount)
 
         #after scraping a whole serch-term we update de file in S3
-        save_file(jobs_data,output_file_name)
+        save_file(jobs_data,s3_client,bucket_file_name+search_terms_dict[base_url],bucket)
+        end_time= time()
+        print("[INFO] {} s elapsed to scrappe and save data from {} with {} jobs".format(round(end_time-start_time,2),base_url,total_listingCount))
         progress_outer.close()
         progress_total.update()
-    save_file_to_aws(s3_client,output_file_name, bucket_file_name,bucket)
-    delete_file(output_file_name)
     progress_total.close()
