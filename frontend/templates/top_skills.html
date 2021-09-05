@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="py-4">
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+        <li class="breadcrumb-item"><a href="#"><span class="fas fa-home"></span></a></li>
+        <li class="breadcrumb-item"><a href="/skills">Skills</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{name}}</li>
+    </ol>
+</nav>
+<h1 class ="h1">Top skills for {{name}} role </h1>
+</div>
+<div class="card border-light shadow-sm mb-4">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="border-0">Rank</th>
+                        <th class="border-0">Skill</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Item -->
+                    {% if skills %}
+                    {%for skill in skills%}
+                    <tr>
+                        <td class="border-0 font-weight-bold"><span class="h6">{{skill[0]}}</span></td>
+                        <td class="border-0 font-weight-bold"><span class="h6 text-capitalize">{{skill[1]}}</span></td>
+                    </tr>
+                    {%endfor%}
+                    {% else %}
+                    <h1>No skills to display</h1>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

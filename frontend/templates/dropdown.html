@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+            <li class="breadcrumb-item"><a href="#"><span class="fas fa-home"></span></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Skills</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between w-100 flex-wrap">
+        <div class="mb-3 mb-lg-0">
+            <h1 class="h4">Available Jobs</h1>
+            <p class="mb-0">Select a job which you want to know the top skills asked from companies.</p>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="card border-light shadow-sm components-section">
+        <div class="card-body row ">
+            {% if jobs %}
+            {%for job in jobs%}
+            <div class="card bg-primary mb-3 ">
+            <a href="skills/{{ job[0] }}"><h4 class="text-center text-white text-capitalize" style="margin-top: 5px;">{{ job[1] }}</h4></a>
+            </div>
+            {%endfor%}
+            {% else %}
+            <h1 class="h4">No jobs to display</h1>
+            {% endif %}
+        </div>
+        </div> 
+    </div>
+</section>
+</div>
+{% endblock content %}
+
