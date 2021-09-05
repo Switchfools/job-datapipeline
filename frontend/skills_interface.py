@@ -6,6 +6,7 @@ from flask import Flask ,render_template
 
 #this url only allows to make gets 
 JOBS_API="https://qh56a8dxx2.execute-api.us-east-2.amazonaws.com/dev/skills"
+
 app = Flask(__name__,static_folder='static')
 
 
@@ -27,4 +28,7 @@ def dashboard():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("page-404.html")
+
+if __name__=="__main__":
+    app.run()
 
