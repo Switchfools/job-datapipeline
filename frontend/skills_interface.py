@@ -29,6 +29,6 @@ def dashboard():
 def page_not_found(e):
     return render_template("page-404.html")
 
-if __name__=="__main__":
-    app.run()
+if __name__ == "__main__":
+    app.run(host='0.0.0.0',port="80")
 
