@@ -92,6 +92,7 @@ def create_dataframe(schema,data=[]):
     print("[INFO] Dataframe succesfully created")
     #df2.printSchema()
     return df2
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Search terms for job scrapping.')
     parser.add_argument('-job', '--job_type', type=str, nargs='+', default=["data-engineer"],

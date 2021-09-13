@@ -1,7 +1,0 @@
-beautifulsoup4
-requests
-urllib3
-enlighten
-boto3
-pandas
-pyarrow

@@ -1,0 +1,36 @@
+{
+    "paths": [
+        {
+            "name": "/skills",
+            "lambdaFunction": "skillsapi",
+            "privacy": {
+                "open": true
+            },
+            "policyResourceName": "/skills"
+        }
+    ],
+    "resourceName": "jobsinfoapi",
+    "apiName": "jobsinfoapi",
+    "functionArns": [
+        {
+            "lambdaFunction": "skillsapi"
+        }
+    ],
+    "privacy": {
+        "auth": 0,
+        "unauth": 0,
+        "authRoleName": "amplify-jobskillrestapi-dev-24019-authRole",
+        "unAuthRoleName": "amplify-jobskillrestapi-dev-24019-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "skillsapi",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ],
+    "uuid": "3e606142"
+}

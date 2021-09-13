@@ -9,6 +9,4 @@ COPY ./requirements.txt /app/requirements.txt
 WORKDIR /app
 RUN pip install -r requirements.txt
 COPY . /app
-RUN FLASK_APP=skills_interface.py 
-RUN FLASK_ENV=development 
-CMD [ "flask", "run" ]
+CMD [ "gunicorn -w 4 wsgi:app]

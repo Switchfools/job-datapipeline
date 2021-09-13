@@ -1,0 +1,16 @@
+{
+"skills":["python","kubernets","spark","hadoop","excel",
+        "java","apache","etl","c++","sql","nosql","aws",
+        "azure","mongo","mongodb","cicd","tableau","ml",
+        "tensorflow","keras","numpy", "redshift","hdfs","s3",
+       "warehousing","warehous","lake","datalake","api","scala",
+        "hive","pig","hbase","cassandra","snowflake","oracle",
+        "postgresql","mysql","structures","statistics","mathematics",
+       "cloud","go","linux","git","acid","cap","oltp","olap","neo4j",
+        "graphs","mapreduce","cluster","impala","sqoop","flume","kafka",
+        "security","firewall","http","https","github","jupyter","mlops",
+       "machine","pytorch","scikit-learn","math"],
+"studies":["phd","graduate","master","ms","ma","bsc","undergraduate"],
+"jobs" : ["Data Scientist", "Data Engineer", "Software Engineer","Machine Learning Engineer",
+          "Backend Engineer","Frontend Developer","Research Scientist","Mlops","Devops"]
+}

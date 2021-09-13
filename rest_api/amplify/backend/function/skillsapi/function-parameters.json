@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "storage": {
+      "Jobs": [
+        "read"
+      ],
+      "Top10skills": [
+        "read"
+      ]
+    }
+  },
+  "lambdaLayers": [],
+  "environmentVariableList": []
+}

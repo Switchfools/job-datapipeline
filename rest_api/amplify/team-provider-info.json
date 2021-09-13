@@ -1,0 +1,39 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-jobskillrestapi-dev-24019-authRole",
+      "UnauthRoleArn": "arn:aws:iam::008678087557:role/amplify-jobskillrestapi-dev-24019-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::008678087557:role/amplify-jobskillrestapi-dev-24019-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-jobskillrestapi-dev-24019-deployment",
+      "UnauthRoleName": "amplify-jobskillrestapi-dev-24019-unauthRole",
+      "StackName": "amplify-jobskillrestapi-dev-24019",
+      "StackId": "arn:aws:cloudformation:us-east-2:008678087557:stack/amplify-jobskillrestapi-dev-24019/5cd03b80-0d53-11ec-b13d-02261dac6e7c",
+      "AmplifyAppId": "d21ek9gici0jw9"
+    },
+    "categories": {
+      "storage": {
+        "Jobs": {
+          "tableName": "Jobs",
+          "region": "us-east-2",
+          "arn": "arn:aws:dynamodb:us-east-2:008678087557:table/Jobs",
+          "partitionKeyName": "job_id",
+          "partitionKeyType": "S"
+        },
+        "Top10skills": {
+          "tableName": "Top_10_skills",
+          "region": "us-east-2",
+          "arn": "arn:aws:dynamodb:us-east-2:008678087557:table/Top_10_skills",
+          "partitionKeyName": "job_id",
+          "partitionKeyType": "S"
+        }
+      },
+      "function": {
+        "skillsapi": {
+          "deploymentBucketName": "amplify-jobskillrestapi-dev-24019-deployment",
+          "s3Key": "amplify-builds/skillsapi-4d79673837506c597742-build.zip"
+        }
+      }
+    }
+  }
+}
